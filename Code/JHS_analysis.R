@@ -178,9 +178,6 @@ survival_curves <- prds_survival_curve %>%
     x='Time, years'
     )
 
-
-
-
 prds$risk[is.na(prds$risk)]<-mean(prds$risk,na.rm=T)
 
 pec::cindex(
@@ -219,8 +216,6 @@ names(cols_to_bind) <- c("orsf","cif","risk")
 
 ggdat <- data$test %>% 
   dplyr::bind_cols(cols_to_bind)
-
-
 
 xvars <- list(
   lvm=list(limits=c(40,100),label='Left ventricular mass, g/m2'),

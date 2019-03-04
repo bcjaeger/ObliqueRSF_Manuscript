@@ -25,14 +25,7 @@ require(rBayesianOptimization)
 require(prodlim)
 require(simsurv)
 require(parallel)
-require(Rcpp)
-
-source("Source/oblique_survival_forest_predict.R")
-source("Source/oblique_survival_forest_predictSurvProb.R")
-source("Source/oblique_survival_forest_print.R")
-source("Source/oblique_survival_forest_fit.R")
-sourceCpp("Source/ORSF.cpp")
-
+require(obliqueRSF)
 
 # sample sizes
 n=1500; ntrn=1000; ntst=n-ntrn
