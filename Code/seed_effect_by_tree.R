@@ -4,23 +4,10 @@ library(Rcpp)
 library(survival)
 library(protoclust)
 library(magrittr)
+library(obliqueRSF)
 
-files <- list.files(
-  file.path(
-    '..','ORSF benchmark','Code','ORSF Source'
-  ),
-  full.names = TRUE
-)
 
-for(f in seq_along(files)){
-  
-  if(f==5){
-    sourceCpp(files[f])
-  } else {
-    source(files[f])
-  }
-  
-}
+# Load and manage PBC data ------------------------------------------------
 
 data = survival::pbc %>% 
   dplyr::select(-id) %>% 
@@ -32,26 +19,35 @@ data = survival::pbc %>%
     )
   ) 
 
+# Clustering --------------------------------------------------------------
+
+nclust = 3
+
+# This index shows where the proto subjects are
 clst_indx <- data %>% 
   model.matrix(~.-1, data=.) %>% 
   stats::dist() %>% 
   protoclust::protoclust() %>% 
-  protoclust::protocut(k = 3) %>% 
+  protoclust::protocut(k = nclust) %>% 
   magrittr::use_series("protos")
 
-obs_to_predict <- data[clst_indx,]
-
+# compute survival predictions at these times
 ptimes <- seq(
   quantile(data$time[-clst_indx], probs = 0.10),
   quantile(data$time[-clst_indx], probs = 0.90),
   length.out = 50
 )
 
-nboots <- seq(1,250) %>% 
-  set_names(paste0("run_",.))
+# set up the map objects
 ntree_values <- c(10, 100, 1000) %>% 
   set_names(paste("Trees =",.))
 
+# this was set to 250 (instead of 5) in the manuscript
+nboots <- seq(1,5) %>% 
+  set_names(paste0("run_",.))
+
+
+# Loop through the map objects
 results <- 
   ntree_values %>% 
   map(.f=function(ntrees){
@@ -72,7 +68,7 @@ results <-
         verbose=TRUE, 
         use.cv=FALSE
       ) %>% 
-        predict.orsf(
+        predict(
           newdata = data[clst_indx, ], 
           times = ptimes
         ) %>% 
