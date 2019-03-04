@@ -1,5 +1,4 @@
 
-
 library(tidyverse)
 library(magrittr)
 library(survival)
@@ -19,18 +18,13 @@ custom_cols <- c(
 ) %>% 
   as.character()
 
-Rcpp::sourceCpp('../ORSF benchmark/Source/ORSF.cpp')
-source('../ORSF benchmark/Source/oblique_survival_forest_fit.R')
-source('../ORSF benchmark/Source/oblique_survival_forest_predict.R')
-source('../ORSF benchmark/Source/oblique_survival_forest_predictSurvProb.R')
-
 jhs <- readRDS(
-  '../ORSF benchmark/benchmark_data.RDS'
+  'Datasets/benchmark_data.RDS'
 ) %>% 
   .[["jhs"]]
 
 jhs_10yrisk <- read.csv(
-  'JHS analysis/JHS_10_year_PCR.csv'
+  '../Datasets/JHS_10_year_PCR.csv'
 ) %>% 
   dplyr::select(subjid,risk) 
 
@@ -61,6 +55,7 @@ t2=prop.table(t1,margin=2)
 t2
 
 set.seed(329)
+
 ntrn=3000
 trn_indx <- sample(1:nrow(anly),ntrn)
 tst_indx <- setdiff(1:nrow(anly), trn_indx)
@@ -184,10 +179,7 @@ survival_curves <- prds_survival_curve %>%
     )
 
 
-saveRDS(
-  survival_curves,
-  "../ORSF Manuscript/JHS analysis/survival_curves_plot.RDS"
-)
+
 
 prds$risk[is.na(prds$risk)]<-mean(prds$risk,na.rm=T)
 
@@ -265,7 +257,6 @@ desc_plot <- data %>%
     y='Count'
   )
 
-saveRDS(desc_plot,'JHS analysis/desc_plot.RDS')
 
 plts <- map2(xvars,names(xvars),.f=function(.xvar,.lab){
   
@@ -298,8 +289,6 @@ vdep_plot <-
     common.legend = TRUE,
     legend='bottom'
   )
-
-saveRDS(vdep_plot, "JHS analysis/vdep_plot.RDS")
 
 # Partial variable dependence ---------------------------------------------
 
@@ -355,7 +344,6 @@ pdep_plot <-
     legend='bottom'
   )
 
-saveRDS(pdep_plot,'JHS analysis/pdep_plot.RDS')
 
 gen_partial_preds <- function(grid, lab){
   
@@ -434,6 +422,10 @@ desc_tab = data %>%
     decimals = 2
   )
 
-saveRDS(desc_tab,'JHS analysis/desc_tab.RDS')  
+saveRDS(survival_curves,"figure/survival_curves_plot.RDS")
+saveRDS(pdep_plot,'figure/pdep_plot.RDS')
+saveRDS(desc_plot,'figure/desc_plot.RDS')
+saveRDS(vdep_plot, "figure/vdep_plot.RDS")
+saveRDS(desc_tab,'figure/desc_tab.RDS')  
 
 #
